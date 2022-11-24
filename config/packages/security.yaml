@@ -34,6 +34,8 @@ security:
     access_control:
         #  - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
 
+         - { path: ^/article/, roles: IS_AUTHENTICATED_FULLY }
+
 when@test:
     security:
         password_hashers:

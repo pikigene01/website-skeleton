@@ -12,7 +12,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-// #[IsGranted('ROLE_ADMIN')]
 
 #[Route('/article')]
 class ArticleController extends AbstractController
@@ -20,6 +19,14 @@ class ArticleController extends AbstractController
     #[Route('/', name: 'app_article_index', methods: ['GET'])]
     public function index(ArticleRepository $articleRepository): Response
     {
+        // $dql   = "SELECT a FROM AcmeMainBundle:Article a";
+        // $query = $em->createQuery($dql);
+    
+        // $pagination = $paginator->paginate(
+        //     $query, /* query NOT result */
+        //     $request->query->getInt('page', 1), /*page number*/
+        //     10 /*limit per page*/
+        // );
 
         return $this->render('article/index.html.twig', [
             'articles' => $articleRepository->findAll(),
@@ -51,8 +58,11 @@ class ArticleController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_article_show', methods: ['GET'])]
+    #[IsGranted('ROLE_ADMIN')]
+
     public function show(Article $article): Response
     {
+        
         return $this->render('article/show.html.twig', [
             'article' => $article,
         ]);
