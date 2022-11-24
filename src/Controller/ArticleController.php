@@ -37,7 +37,7 @@ class ArticleController extends AbstractController
     }
 
     #[Route('/new', name: 'app_article_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, ArticleRepository $articleRepository): Response
+    public function new(EntityManagerInterface $em,Request $request, ArticleRepository $articleRepository): Response
     {
         
         $article = new Article();
@@ -47,9 +47,19 @@ class ArticleController extends AbstractController
         // $user = $this->getDoctrine()
         //      ->getRepository('YourBundle:User')
         //      ->findOneBy(array('email' => $email));
+        $message = '';
 
         if ($form->isSubmitted() && $form->isValid()) {
             $file = $request->files->get('article')['picture'];
+            $title_request = $request->get('article')['title'];
+            $user = $this->getDoctrine()
+            ->getRepository('App\Entity\Article')
+            ->findOneBy(array('title' => $title_request));
+            if($user){
+           $message = 'Article already exists inside our database';
+           
+            }else{
+
             $uploads_directory = $this->getParameter('uploads_directory');
 
             $filename = md5(uniqid()) . '.' . $file->guessExtension();
@@ -58,9 +68,10 @@ class ArticleController extends AbstractController
                 $uploads_directory, $filename
             );
            $article->setPicture($filename);
+        };
             $articleRepository->save($article, true);
 
-            return $this->redirectToRoute('app_article_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_article_index', ['message'=>$message], Response::HTTP_SEE_OTHER);
         }
 
         return $this->renderForm('article/new.html.twig', [
