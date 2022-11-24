@@ -39,6 +39,7 @@ class ArticleController extends AbstractController
     #[Route('/new', name: 'app_article_new', methods: ['GET', 'POST'])]
     public function new(Request $request, ArticleRepository $articleRepository): Response
     {
+        
         $article = new Article();
         $form = $this->createForm(ArticleType::class, $article);
         $form->handleRequest($request);
@@ -48,7 +49,15 @@ class ArticleController extends AbstractController
         //      ->findOneBy(array('email' => $email));
 
         if ($form->isSubmitted() && $form->isValid()) {
-           
+            $file = $request->files->get('article')['picture'];
+            $uploads_directory = $this->getParameter('uploads_directory');
+
+            $filename = md5(uniqid()) . '.' . $file->guessExtension();
+
+            $file->move(
+                $uploads_directory, $filename
+            );
+           $article->setPicture($filename);
             $articleRepository->save($article, true);
 
             return $this->redirectToRoute('app_article_index', [], Response::HTTP_SEE_OTHER);
